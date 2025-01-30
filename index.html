@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>学習用サイト</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #2c3e50; 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            color: #ecf0f1; 
+        }
+        #container { 
+            display: flex; 
+            justify-content: space-around; 
+            width: 90%; 
+            max-width: 1200px; 
+        }
+        #quiz, #monster-container { 
+            width: 45%; 
+            background: #34495e; 
+            padding: 20px; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
+            border-radius: 10px; 
+        }
+        .question { 
+            font-size: 1.5em; 
+            margin-bottom: 20px; 
+        }
+        .options { 
+            display: flex; 
+            flex-direction: column; 
+        }
+        .options button { 
+            margin: 5px 0; 
+            padding: 10px; 
+            font-size: 1em; 
+            background-color: #1abc9c; 
+            color: #ecf0f1; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            transition: background-color 0.3s ease; 
+        }
+        .options button:hover { 
+            background-color: #16a085; 
+        }
+        .monster { 
+            font-size: 1.2em; 
+            margin: 20px 0; 
+        }
+        .hidden { 
+            display: none; 
+        }
+        .level { 
+            font-size: 1em; 
+        }
+        .health-bar { 
+            width: 100%; 
+            background-color: #ddd; 
+            border-radius: 5px; 
+            overflow: hidden; 
+        }
+        .health { 
+            height: 24px; 
+            background-color: #e74c3c; 
+            width: 100%; 
+            transition: width 0.3s ease; 
+        }
+        #monster-image { 
+            max-width: 100%; 
+            height: auto; 
+            display: block; 
+            margin: 0 auto; 
+            border-radius: 10px; 
+        }
+    </style>
+    <script>
+        let questions = [
+            { question: "一次エネルギーはどれ？", options: ["石油", "都市ガス", "電気", "ガソリン"], answer: 0 },
+            { question: "化石燃料ではないものは？", options: ["石油", "天然ガス", "石炭", "都市ガス"], answer: 3 },
+            { question: "電気自動車のエネルギー変換は？", options: ["運動→光", "電気→運動", "光→電気", "熱→光"], answer: 2 },
+            { question: "スピーカーのエネルギー変換は？", options: ["電気→音", "電気→光", "運動→光", "音→光"], answer: 0 },
+            { question: "水力発電？", options: ["化学→運動→電気", "位置→運動→電気", "熱→光→電気", "電気→運動→位置"], answer: 1 },
+            { question: "無駄なエネルギーに変換されることをなんという", options: ["エネルギー変換", "エネルギー破壊", "エネルギー展開", "エネルギー損失"], answer: 3 },
+            { question: "原子力発電の燃料は？", options: ["石油", "石炭", "天然ガス", "ウラン"], answer: 3 },
+            { question: "火力発電で蒸気を回転運動にかえる装置は？", options: ["タービン", "モーター", "ターザン", "ベーター"], answer: 0 },
+            { question: "電気回路で電気を生み出す要素をなんという", options: ["電源", "負荷", "スイッチ", "導線"], answer: 0 },
+            { question: "電気回路で電気を制御する要素をなんという", options: ["電源", "負荷", "スイッチ", "導線"], answer: 2 },
+            { question: "電気回路で電気を別のエネルギーに変換する要素をなんという", options: ["電源", "負荷", "スイッチ", "導線"], answer: 1 },
+            { question: "電流の単位は？", options: ["アンペア", "ボルト", "ワット", "オーム"], answer: 0 },
+            { question: "電力の単位は？", options: ["アンペア", "ボルト", "ワット", "オーム"], answer: 2 },
+            { question: "抵抗の単位は？", options: ["A", "V", "W", "Ω"], answer: 2 },
+            { question: "消費電流５[A]のドライヤーを家庭用コンセント１００[V]で使ったときの電力は？", options: ["５００[W]", "３００[W]", "２０[W]", "５０００[W]"], answer: 0 },
+            { question: "消費電流３[A]のトースターを家庭用コンセント１００[V]で使ったときの電力は？", options: ["５００[W]", "３００[W]", "２０[W]", "５０００[W]"], answer: 1 },
+            { question: "消費電力５００[W]のトースターを家庭用コンセント１００[V]で使ったときに流れる電流は？", options: ["５[A]", "３[A]", "２[A]", "５０[A]"], answer: 0 },
+            { question: "電源のプラスとマイナスが直接つながって火花が飛ぶ現象は？", options: ["トラッキング現象", "ショート", "漏電", "感電"], answer: 1 },
+            { question: "コンセントとプラグの間にたまったほこりと湿気が原因で出火する現象は？", options: ["トラッキング現象", "ショート", "漏電", "感電"], answer: 0 },
+            { question: "水濡れや故障しているところから電気が漏れる現象は？", options: ["トラッキング現象", "ショート", "漏電", "感電"], answer: 2 },
+            { question: "電気を簡単な図に表したものをなんという？", options: ["設計図", "製作図", "電気図", "回路図"], answer: 3 },
+            { question: "部品を守るために、流れる電気の量を調整（減らす）部品は？", options: ["電池", "抵抗器", "トランジスタ", "光センサ"], answer: 1 },
+            { question: "センサの信号によって負荷を動かす部品は？", options: ["電池", "抵抗器", "トランジスタ", "光センサ"], answer: 2 },
+            { question: "極性（電気が流れる方向）がある部品はどれ？", options: ["LED", "抵抗器", "スイッチ", "圧電スピーカー"], answer: 0 },
+            { question: "◯の中に✕が書かれた図記号はなに？", options: ["LED", "抵抗器", "スイッチ", "電球"], answer: 3 },
+            { question: "太陽光や水力など半永久的に使えるエネルギーをなんという？", options: ["再生可能エネルギー", "再生エネルギー", "無限エネルギー", "究極エネルギー"], answer: 0 },
+            { question: "天候によって左右される発電方法は？", options: ["火力発電", "原子力発電", "風力発電", "地熱発電"], answer: 2 },
+            { question: "火力発電のデメリットは？", options: ["自然環境に悪い", "発電が安定しない", "発電量が少ない", "お金が高い"], answer: 0 },
+            { question: "最も発電効率がよい発電方法は？", options: ["太陽光発電", "原子力発電", "水力発電", "火力発電"], answer: 2 },
+            { question: "ソーシャルネットワーキングサービスの略称は？", options: ["SSS", "SNN", "SNS", "SLS"], answer: 2 },
+            { question: "インターネット上の仮想の空間をなんという？", options: ["サバイバー空間", "３次元空間", "２次元空間", "サイバー空間"], answer: 3 },
+            { question: "世界規模のネットワークをなんという？", options: ["イントラネット", "サイバーネット", "インターネット", "スパイダーネット"], answer: 2 },
+            { question: "ID/パスワードなどのシステムをなんという？", options: ["個人認証", "ファイアーウォール", "セキュリティー", "ウイルス"], answer: 0 },
+            { question: "情報を一定の法則に基づいて、意味が分からないものにすることをなんという", options: ["暗証化", "復号化", "暗号化", "高齢化"], answer: 2 },
+            // 他の48個の質問を追加
+        ];
+        while (questions.length < 50) { // デモのために同じ質問を複製
+            questions.push(questions[0]);
+        }
+        let currentQuestion = 0;
+        let score = 0;
+        let currentMonster = 1;
+        let monsterHealth = 10;
+        
+        let monsterImages = [
+            "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj6cGdAgHq8lBLnAFNFWm5OTOUtPGWCAl_O5ErV7IfRdoSIk0v9pC_yDQ0rcdpwdqjC9WPnLHz6l7w8Wzi8sOXdYal88LB4ehDR-pir3ryuN80ohoEYuRw_BCYzPt1kwrYxQhdmn1ghso6C/s180-c/kodai_tullimonstrum.png",
+            "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEihmLh3K9GXOhOAsJL1TwoZnRZ_x53JcncpbXeSnxlBvPC3eomzTLMBIdkvNIYtEI7uyxJQP31CKwkCzvyuvRuKs3mUq-jqOKtTdLIxFJ1TKaCgN21pdFAN1lVxWwNPFtBeppQeb3HiiKM/s180-c/fantasy_flatwoods_monster.png",
+            "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi4PSDn7aVuPB77HHjIpooQ_wqcG417qoqx5JbzlhSuM1Y4dHhDKtvfPcIXPQr1ampDa3HxT0y5lUazIbM8eoK6SqtvmLY9-nOP7ZmH8kSSROTUnYyu9aoVgf1bp2ny_A4-ToX2QQK7QdA/s180-c/movie_tokusyu_make.png",
+            "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjSK7Zas8mySiEkUkN-jEJ8uRx-qMosPW60M-OH-FDX-fcALGj4GXNuZRT-z_mjSC92neh0SHT6_SS_Wq8m5pylvRURY67lkWhboIBgbgOYiouPWJlD5XEPtYYyLM1lizsSWvOxXn7RBYM/s180-c/bug_nisehanamaou_kamakiri.png",
+            "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjtzOSh5RtTHz515R23Yc7ROVvVaf91S5y5elKZYjnSAa0bGnfAUjs8Tqg_hQCx25m6iMCTb1eQyKJa_zacaS5z2CYM3ZxBW4wgIo_ISufy24nru8gtfbJSLbPcuWZt9bDBPT1hsk3GNXrU/s180-c/fantasy_dragon_wyvern.png"
+        ];
+        function loadQuestion() {
+            if (currentQuestion < questions.length) {
+                document.getElementById("question").innerText = questions[currentQuestion].question;
+                let options = document.getElementById("options");
+                options.innerHTML = '';
+                for (let i = 0; i < questions[currentQuestion].options.length; i++) {
+                    let option = document.createElement("button");
+                    option.innerText = questions[currentQuestion].options[i];
+                    option.onclick = () => checkAnswer(i);
+                    options.appendChild(option);
+                }
+            } else {
+                let resultMessage = score > 40 ? "すばらしい！" : "";
+                document.getElementById("quiz").innerHTML = `<h2>クイズ終了！最終スコア: ${score}</h2><h3>${resultMessage}</h3><button onclick="restart()">再スタート</button>`;
+            }
+        }
+
+        function checkAnswer(selected) {
+            if (selected === questions[currentQuestion].answer) {
+                score++;
+                monsterHealth--;
+                updateHealthBar();
+                if (monsterHealth <= 0) {
+                    currentMonster++;
+                    if (currentMonster <= 5) {
+                        monsterHealth = 10 * currentMonster; // モンスターの体力が増加
+                        document.getElementById("monster").innerText = `モンスターを倒した！次はモンスターレベル${currentMonster}！`;
+                        document.getElementById("monster-image").src = monsterImages[currentMonster - 1];
+                        updateHealthBar();
+                    } else {
+                        let resultMessage = score > 40 ? "すばらしい！" : "";
+                        document.getElementById("quiz").innerHTML = `<h2>クイズ終了！最終スコア: ${score}</h2><h3>${resultMessage}</h3><button onclick="restart()">再スタート</button>`;
+                        return;
+                    }
+                } else {
+                    document.getElementById("monster").innerText = `モンスターの残り体力: ${monsterHealth}`;
+                }
+            }
+            currentQuestion++;
+            if (currentQuestion % 10 === 0 && currentMonster < 5) {
+                currentMonster++;
+                monsterHealth = 10 * currentMonster;
+                document.getElementById("monster").innerText = `レベルアップ！現在のモンスターレベル: ${currentMonster}`;
+                document.getElementById("monster-image").src = monsterImages[currentMonster - 1];
+                updateHealthBar();
+            }
+            loadQuestion();
+        }
+
+        function updateHealthBar() {
+            let healthPercentage = (monsterHealth / (10 * currentMonster)) * 100;
+            document.getElementById("health").style.width = healthPercentage + '%';
+        }
+
+        function restart() {
+            currentQuestion = 0;
+            score = 0;
+            currentMonster = 1;
+            monsterHealth = 10;
+            document.getElementById("monster-image").src = monsterImages[0];
+            loadQuestion();
+            document.getElementById("monster").innerText = `モンスターの体力: ${monsterHealth}`;
+            updateHealthBar();
+        }
+
+        window.onload = function() {
+            document.getElementById("monster-image").src = monsterImages[0];
+            loadQuestion();
+            updateHealthBar();
+            playBGM();
+        }
+
+        function playBGM() {
+            let audio = new Audio('music.mp3');
+            audio.loop = true;
+            audio.play();
+        }
+    </script>
+</head>
+<body>
+    <div id="container">
+        <div id="quiz">
+            <div id="question" class="question"></div>
+            <div id="options" class="options"></div>
+        </div>
+        <div id="monster-container">
+            <img id="monster-image" class="monster" src="" alt="モンスター画像">
+            <div id="monster" class="monster">モンスターの体力: 10</div>
+            <div class="health-bar">
+                <div id="health" class="health"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
